@@ -14,6 +14,16 @@ import { ProjectDialog } from "@/components/admin/project-dialog";
 import { ProjectActions } from "@/components/admin/project-actions";
 import { getAllProjects } from "@/lib/db";
 
+interface Project {
+  id: string;
+  title: string;
+  category: string;
+  image: string;
+  description: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 const categories = [
   "Residential",
   "Commercial",
@@ -124,7 +134,7 @@ export default async function AdminPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {projectData?.map((project, index) => (
+                      {projectData?.map((project: Project, index: number) => (
                         <TableRow
                           key={project.id}
                           className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all duration-200 group"
