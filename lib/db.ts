@@ -12,11 +12,16 @@ export async function createProject(data: {
 }) {
 
   const user = await currentUser()
-  console.log(user)
+  console.log('Current user:', user?.id)
   if (!user?.id) {
     return { success: false, error: 'User not authenticated' }
   }
+  
   try {
+    console.log('Connecting to database for project creation...')
+    await prisma.$connect()
+    
+    console.log('Creating project with data:', data)
     const project = await prisma.project.create({
       data: {
         ...data,
@@ -24,24 +29,37 @@ export async function createProject(data: {
         category: data.category ?? ""
       }
     })
+    
+    console.log('Project created with ID:', project.id)
     revalidatePath('/admin')
     return { success: true, project }
   } catch (error) {
     console.error('Failed to create project:', error)
-    return { success: false, error: 'Failed to create project' }
+    const errorMessage = error instanceof Error ? error.message : 'Unknown database error'
+    return { success: false, error: `Database error: ${errorMessage}` }
+  } finally {
+    await prisma.$disconnect()
   }
 }
 
 export async function getAllProjects() {
   try {
+    console.log('Connecting to database...')
+    await prisma.$connect()
+    
+    console.log('Fetching projects from database...')
     const projects = await prisma.project.findMany({
       orderBy: { createdAt: 'desc' }
     })
-    // console.log(projects, "These are your projects")
+    
+    console.log(`Found ${projects.length} projects`)
     return { success: true, data: projects }
   } catch (error) {
     console.error('Failed to get projects:', error)
-    return { success: false, error: 'Failed to get projects' }
+    const errorMessage = error instanceof Error ? error.message : 'Unknown database error'
+    return { success: false, error: `Database error: ${errorMessage}` }
+  } finally {
+    await prisma.$disconnect()
   }
 }
 
