@@ -3,7 +3,7 @@ import ProjectsClient from "@/components/projects/ProjectsClient";
 
 export default async function ProjectsPage() {
   const result = await getAllProjects();
-  const projects = result?.data || [];
+  const projects = result.success && "data" in result ? result.data : [];
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">

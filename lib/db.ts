@@ -2,6 +2,26 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from './prisma'
 import { revalidatePath } from 'next/cache'
+import { safeDbOperation, ensureDbConnection, safeDbDisconnect } from './db-utils'
+
+// Types
+interface Project {
+  id: string
+  title: string
+  category: string
+  image: string
+  description: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+type DbResult<T> = 
+  | { success: true; data: T }
+  | { success: false; error: string }
+
+type CreateProjectResult = 
+  | { success: true; project: Project }
+  | { success: false; error: string }
 
 // Project CRUD operations
 export async function createProject(data: {
@@ -19,7 +39,10 @@ export async function createProject(data: {
   
   try {
     console.log('Connecting to database for project creation...')
-    await prisma.$connect()
+    const connected = await ensureDbConnection()
+    if (!connected) {
+      return { success: false, error: 'Failed to connect to database' }
+    }
     
     console.log('Creating project with data:', data)
     const project = await prisma.project.create({
@@ -38,29 +61,34 @@ export async function createProject(data: {
     const errorMessage = error instanceof Error ? error.message : 'Unknown database error'
     return { success: false, error: `Database error: ${errorMessage}` }
   } finally {
-    await prisma.$disconnect()
+    await safeDbDisconnect()
   }
 }
 
-export async function getAllProjects() {
-  try {
-    console.log('Connecting to database...')
-    await prisma.$connect()
-    
-    console.log('Fetching projects from database...')
-    const projects = await prisma.project.findMany({
-      orderBy: { createdAt: 'desc' }
-    })
-    
-    console.log(`Found ${projects.length} projects`)
-    return { success: true, data: projects }
-  } catch (error) {
+export async function getAllProjects(): Promise<DbResult<Project[]>> {
+  return safeDbOperation(
+    async () => {
+      console.log('Connecting to database...')
+      const connected = await ensureDbConnection()
+      if (!connected) {
+        throw new Error('Failed to connect to database')
+      }
+      
+      console.log('Fetching projects from database...')
+      const projects = await prisma.project.findMany({
+        orderBy: { createdAt: 'desc' }
+      })
+      
+      console.log(`Found ${projects.length} projects`)
+      await safeDbDisconnect()
+      return { success: true as const, data: projects }
+    },
+    { success: true as const, data: [] } // Fallback value for build time
+  ).catch((error) => {
     console.error('Failed to get projects:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown database error'
-    return { success: false, error: `Database error: ${errorMessage}` }
-  } finally {
-    await prisma.$disconnect()
-  }
+    return { success: false as const, error: `Database error: ${errorMessage}` }
+  })
 }
 
 export async function updateProject(id: string, data: {

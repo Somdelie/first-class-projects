@@ -44,7 +44,8 @@ const categoryColors = {
 
 export default async function AdminPage() {
   const projects = await getAllProjects();
-  const projectData = projects?.data || [];
+  const projectData =
+    projects.success && "data" in projects ? projects.data : [];
 
   // console.log(projectData, "These are the projects");
 
@@ -81,7 +82,9 @@ export default async function AdminPage() {
                         Total Projects
                       </p>
                       <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                        {projects?.data?.length}
+                        {projects.success && "data" in projects
+                          ? projects.data.length
+                          : 0}
                       </p>
                     </div>
                     <div className="p-3 bg-emerald-100 dark:bg-emerald-950 rounded-xl">
