@@ -1,8 +1,8 @@
 'use server'
 import { currentUser } from '@clerk/nextjs/server'
-import { prisma } from './prisma'
 import { revalidatePath } from 'next/cache'
 import { safeDbOperation, ensureDbConnection, safeDbDisconnect } from './db-utils'
+import { db } from './prisma'
 
 // Types
 interface Project {
@@ -19,9 +19,6 @@ type DbResult<T> =
   | { success: true; data: T }
   | { success: false; error: string }
 
-type CreateProjectResult = 
-  | { success: true; project: Project }
-  | { success: false; error: string }
 
 // Project CRUD operations
 export async function createProject(data: {
@@ -45,7 +42,7 @@ export async function createProject(data: {
     }
     
     console.log('Creating project with data:', data)
-    const project = await prisma.project.create({
+    const project = await db.project.create({
       data: {
         ...data,
         image: data.image,
@@ -75,7 +72,7 @@ export async function getAllProjects(): Promise<DbResult<Project[]>> {
       }
       
       console.log('Fetching projects from database...')
-      const projects = await prisma.project.findMany({
+      const projects = await db.project.findMany({
         orderBy: { createdAt: 'desc' }
       })
       
@@ -111,8 +108,8 @@ export async function updateProject(id: string, data: {
     if (data.description !== undefined) updateData.description = data.description
     if (data.image !== undefined) updateData.image = data.image
     if (data.category !== undefined) updateData.category = data.category
-    
-    const project = await prisma.project.update({
+
+    const project = await db.project.update({
       where: { id },
       data: updateData
     })
@@ -127,7 +124,7 @@ export async function updateProject(id: string, data: {
 
 export async function deleteProject(id: string) {
   try {
-    await prisma.project.delete({
+    await db.project.delete({
       where: { id }
     })
     revalidatePath('/admin')

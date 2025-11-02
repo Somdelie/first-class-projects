@@ -1,4 +1,5 @@
-import { prisma } from './prisma'
+import { db } from "./prisma"
+
 
 /**
  * Safe database operation wrapper that handles build-time scenarios
@@ -43,7 +44,7 @@ export async function ensureDbConnection() {
   }
 
   try {
-    await prisma.$connect()
+    await db.$connect()
     return true
   } catch (error) {
     console.error('Failed to connect to database:', error)
@@ -56,7 +57,7 @@ export async function ensureDbConnection() {
  */
 export async function safeDbDisconnect() {
   try {
-    await prisma.$disconnect()
+    await db.$disconnect()
   } catch (error) {
     console.log('Error disconnecting from database:', error)
   }

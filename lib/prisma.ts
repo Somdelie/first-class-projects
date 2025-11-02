@@ -14,6 +14,10 @@ function createPrismaClient() {
       },
     },
     errorFormat: 'minimal',
+    transactionOptions: {
+      maxWait: 10000, // default: 2000
+      timeout: 15000, // default: 5000
+    },
   })
 }
 
@@ -21,3 +25,6 @@ export const prisma =
   globalForPrisma.prisma ?? createPrismaClient()
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+
+// Also export as db for backward compatibility
+export const db = prisma

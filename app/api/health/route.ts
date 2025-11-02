@@ -1,5 +1,5 @@
+import { db } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
@@ -21,7 +21,7 @@ export async function GET() {
     console.log('DATABASE_URL is set')
     
     // Test database connection with timeout
-    const connectionPromise = prisma.$connect()
+    const connectionPromise = db.$connect()
     const timeoutPromise = new Promise((_, reject) =>
       setTimeout(() => reject(new Error('Connection timeout')), 10000)
     )
@@ -30,11 +30,11 @@ export async function GET() {
     console.log('Database connected successfully')
     
     // Try to fetch projects count
-    const projectsCount = await prisma.project.count()
+    const projectsCount = await db.project.count()
     console.log('Projects count:', projectsCount)
     
     // Test a simple query
-    const projects = await prisma.project.findMany({
+    const projects = await db.project.findMany({
       take: 1,
       select: { id: true, title: true }
     })
@@ -64,7 +64,7 @@ export async function GET() {
     }, { status: 500 })
   } finally {
     try {
-      await prisma.$disconnect()
+      await db.$disconnect()
     } catch (disconnectError) {
       console.log('Error disconnecting:', disconnectError)
     }
