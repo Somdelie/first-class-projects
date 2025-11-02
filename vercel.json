@@ -1,0 +1,11 @@
+{
+  "buildCommand": "pnpm install && prisma generate && pnpm run build",
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true"
+  }
+}
