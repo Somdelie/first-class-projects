@@ -1,4 +1,4 @@
-import { db } from "./prisma"
+import { prisma } from "./prisma"
 
 
 /**
@@ -44,7 +44,7 @@ export async function ensureDbConnection() {
   }
 
   try {
-    await db.$connect()
+    await prisma.$connect()
     return true
   } catch (error) {
     console.error('Failed to connect to database:', error)
@@ -57,7 +57,7 @@ export async function ensureDbConnection() {
  */
 export async function safeDbDisconnect() {
   try {
-    await db.$disconnect()
+    await prisma.$disconnect()
   } catch (error) {
     console.log('Error disconnecting from database:', error)
   }

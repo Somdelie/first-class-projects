@@ -1,26 +1,10 @@
+import { getAllPartners } from "@/lib/db";
 import Image from "next/image";
 import React from "react";
 
-const partners = [
-  {
-    name: "Dulux",
-    logo: "/dulux-logo.png",
-  },
-  {
-    name: "Marmoran",
-    logo: "/marmoran-logo.png",
-  },
-  {
-    name: "MBA North",
-    logo: "/mba-north-logo.png",
-  },
-  {
-    name: "Plascon",
-    logo: "/plascon-logo.png",
-  },
-];
-
-const ApplicationPartners = () => {
+const ApplicationPartners = async () => {
+  const data = await getAllPartners();
+  const partners = data.success ? data.data : [];
   return (
     <section className="  dark:bg-gray-800">
       <h3 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-white">
@@ -34,7 +18,7 @@ const ApplicationPartners = () => {
           >
             <div className="w-full h-32 flex items-center justify-center mb-4">
               <Image
-                src={partner.logo}
+                src={partner.logoUrl}
                 alt={partner.name}
                 width={160}
                 height={64}

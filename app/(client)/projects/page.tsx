@@ -1,8 +1,8 @@
-import { getAllProjects } from "@/lib/db";
+import { getProjectsAction } from "@/lib/actions";
 import ProjectsClient from "@/components/projects/ProjectsClient";
 
 export default async function ProjectsPage() {
-  const result = await getAllProjects();
+  const result = await getProjectsAction();
   const projects = result.success && "data" in result ? result.data : [];
 
   return (
@@ -14,25 +14,6 @@ export default async function ProjectsPage() {
         Discover our exceptional painting and renovation work across
         residential, commercial, and industrial projects
       </p>
-      {/* Hero Section */}
-      {/* <section className="relative py-20 sm:py-28 lg:py-32 bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 dark:from-emerald-800 dark:via-emerald-900 dark:to-teal-900">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative container mx-auto px-4 sm:px-8 lg:px-20 text-center">
-      
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg px-6 py-3">
-              <span className="text-2xl font-bold text-white">
-                {projects.length}+
-              </span>
-              <span className="text-emerald-100 ml-2">Completed Projects</span>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg px-6 py-3">
-              <span className="text-2xl font-bold text-white">100%</span>
-              <span className="text-emerald-100 ml-2">Client Satisfaction</span>
-            </div>
-          </div>
-        </div>
-      </section> */}
 
       {/* Projects Grid Section */}
       <ProjectsClient projects={projects} />

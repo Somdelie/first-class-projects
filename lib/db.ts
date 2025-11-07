@@ -29,19 +29,16 @@ export async function createProject(data: {
 }) {
 
   const user = await currentUser()
-  console.log('Current user:', user?.id)
   if (!user?.id) {
     return { success: false, error: 'User not authenticated' }
   }
   
   try {
-    console.log('Connecting to database for project creation...')
     const connected = await ensureDbConnection()
     if (!connected) {
       return { success: false, error: 'Failed to connect to database' }
     }
     
-    console.log('Creating project with data:', data)
     const project = await prisma.project.create({
       data: {
         ...data,
@@ -49,8 +46,6 @@ export async function createProject(data: {
         category: data.category ?? ""
       }
     })
-    
-    console.log('Project created with ID:', project.id)
     revalidatePath('/admin')
     return { success: true, project }
   } catch (error) {
@@ -65,18 +60,15 @@ export async function createProject(data: {
 export async function getAllProjects(): Promise<DbResult<Project[]>> {
   return safeDbOperation(
     async () => {
-      console.log('Connecting to database...')
       const connected = await ensureDbConnection()
       if (!connected) {
         throw new Error('Failed to connect to database')
       }
       
-      console.log('Fetching projects from database...')
       const projects = await prisma.project.findMany({
         orderBy: { createdAt: 'desc' }
       })
       
-      console.log(`Found ${projects.length} projects`)
       await safeDbDisconnect()
       return { success: true as const, data: projects }
     },
@@ -95,7 +87,6 @@ export async function updateProject(id: string, data: {
   category?: string
 }) {
 
-  console.log(data)
   try {
     // Filter out fields that shouldn't be updated and only include defined values
     const updateData: {
@@ -132,6 +123,118 @@ export async function deleteProject(id: string) {
   } catch (error) {
     console.error('Failed to delete project:', error)
     return { success: false, error: 'Failed to delete project' }
+  }
+}
+
+// Partner CRUD operations
+interface Partner {
+  id: string
+  name: string
+  logoUrl: string
+  website: string
+  certificate: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+export async function createPartner(data: {
+  name: string
+  logoUrl: string
+  website: string
+  certificate: string
+}): Promise<{ success: true; partner: Partner } | { success: false; error: string }> {
+  const user = await currentUser()
+  if (!user?.id) {
+    return { success: false, error: 'User not authenticated' }
+  }
+  
+  try {
+    const connected = await ensureDbConnection()
+    if (!connected) {
+      return { success: false, error: 'Failed to connect to database' }
+    }
+    
+    const partner = await prisma.partner.create({
+      data
+    })
+    
+    revalidatePath('/admin')
+    return { success: true, partner }
+  } catch (error) {
+    console.error('Failed to create partner:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown database error'
+    return { success: false, error: `Database error: ${errorMessage}` }
+  } finally {
+    await safeDbDisconnect()
+  }
+}
+
+export async function getAllPartners(): Promise<DbResult<Partner[]>> {
+  return safeDbOperation(
+    async () => {
+      const connected = await ensureDbConnection()
+      if (!connected) {
+        throw new Error('Failed to connect to database')
+      }
+      
+      const partners = await prisma.partner.findMany({
+        orderBy: { createdAt: 'desc' }
+      })
+      
+      await safeDbDisconnect()
+      return { success: true as const, data: partners }
+    },
+    { success: true as const, data: [] } // Fallback value for build time
+  ).catch((error) => {
+    console.error('Failed to get partners:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown database error'
+    return { success: false as const, error: `Database error: ${errorMessage}` }
+  })
+}
+
+export async function updatePartner(id: string, data: {
+  name?: string
+  logoUrl?: string
+  website?: string
+  certificate?: string
+}): Promise<{ success: true; partner: Partner } | { success: false; error: string }> {
+  try {
+    // Filter out fields that shouldn't be updated and only include defined values
+    const updateData: {
+      name?: string
+      logoUrl?: string
+      website?: string
+      certificate?: string
+    } = {}
+    if (data.name !== undefined) updateData.name = data.name
+    if (data.logoUrl !== undefined) updateData.logoUrl = data.logoUrl
+    if (data.website !== undefined) updateData.website = data.website
+    if (data.certificate !== undefined) updateData.certificate = data.certificate
+
+    const partner = await prisma.partner.update({
+      where: { id },
+      data: updateData
+    })
+    revalidatePath('/admin')
+    revalidatePath('/')
+    return { success: true, partner }
+  } catch (error) {
+    console.error('Failed to update partner:', error)
+    return { success: false, error: 'Failed to update partner' }
+  }
+}
+
+export async function deletePartner(id: string): Promise<{ success: true } | { success: false; error: string }> {
+  try {
+    await prisma.partner.delete({
+      where: { id }
+    })
+    revalidatePath('/admin')
+    revalidatePath('/')
+    return { success: true }
+  } catch (error) {
+    console.error('Failed to delete partner:', error)
+    return { success: false, error: 'Failed to delete partner' }
   }
 }
 

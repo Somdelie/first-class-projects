@@ -24,6 +24,13 @@ export function MultipleImageUpload({
   const [previewUrls, setPreviewUrls] = useState<string[]>(values);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const handleButtonClick = () => {
+    // Use setTimeout to defer the click to avoid immediate event propagation
+    setTimeout(() => {
+      fileInputRef.current?.click();
+    }, 0);
+  };
+
   const handleFileSelect = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -135,7 +142,7 @@ export function MultipleImageUpload({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={handleButtonClick}
             disabled={disabled || isUploading}
             className="flex items-center gap-2"
           >
@@ -174,7 +181,11 @@ export function MultipleImageUpload({
               variant="destructive"
               size="sm"
               className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={() => handleRemove(index)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleRemove(index);
+              }}
               disabled={disabled || isUploading}
             >
               <X className="w-3 h-3" />
@@ -186,7 +197,7 @@ export function MultipleImageUpload({
         {canAddMore && (
           <button
             type="button"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={handleButtonClick}
             disabled={disabled || isUploading}
             className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:text-gray-600 hover:border-gray-400 transition-colors disabled:opacity-50"
           >

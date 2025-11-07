@@ -48,10 +48,15 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
       const extension = file.name.split(".").pop();
       const filename = `project-${timestamp}.${extension}`;
 
+      // Create FormData for upload
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("filename", filename);
+
       // Upload to API
-      const response = await fetch(`/api/upload?filename=${filename}`, {
+      const response = await fetch("/api/upload", {
         method: "POST",
-        body: file,
+        body: formData,
       });
 
       if (!response.ok) {

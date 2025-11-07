@@ -8,13 +8,12 @@ const HeroSection = () => {
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage:
-            "url('/person-painting-wall-with-blue-paint-roller.jpg')",
+          backgroundImage: "url('/hero-bg8.jpg')",
         }}
       />
 
       {/* Enhanced gradient overlay */}
-      <div className="absolute inset-0 bg-linear-to-br from-blue-900/90 via-teal-800/70 to-transparent dark:from-slate-900/95 dark:via-slate-800/85" />
+      <div className="absolute inset-0 bg-linear-to-br from-blue-900/90 via-teal-800/40 to-transparent dark:from-slate-900/95 dark:via-slate-800/85" />
 
       {/* Main content container */}
       <div className="w-full px-6 lg:px-8 py-20 relative z-10">
@@ -33,7 +32,7 @@ const HeroSection = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.6 }}
             >
-              <span className="inline-flex items-center px-6 py-3 bg-linear-to-r from-amber-500 to-orange-500 text-white text-sm font-bold uppercase tracking-wider rounded-full shadow-2xl">
+              <span className="inline-flex items-center px-6 py-3 bg-linear-to-r from-teal-500 to-teal-900 text-white text-sm font-bold uppercase tracking-wider rounded-full shadow-2xl">
                 <span className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
                 Professional Service Since 1988
               </span>
@@ -47,7 +46,7 @@ const HeroSection = () => {
               transition={{ delay: 0.4, duration: 0.8 }}
             >
               Transform Spaces With{" "}
-              <span className="text-amber-400">Exceptional Painting</span>
+              <span className="text-green-500">Exceptional Painting</span>
             </motion.h1>
             {/* <motion.span
               className="block text-slate-900 dark:text-white mb-2"

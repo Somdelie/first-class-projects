@@ -211,6 +211,7 @@ export default function ProjectsClient({ projects }: ProjectsClientProps) {
                 key={project.id}
                 project={project}
                 viewMode={viewMode}
+                onViewProject={() => router.push(`/projects/${project.id}`)}
               />
             ))}
           </div>
@@ -223,9 +224,11 @@ export default function ProjectsClient({ projects }: ProjectsClientProps) {
 function ProjectCard({
   project,
   viewMode,
+  onViewProject,
 }: {
   project: Project;
   viewMode: "grid" | "list";
+  onViewProject: () => void;
 }) {
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString("en-US", {
@@ -236,7 +239,10 @@ function ProjectCard({
 
   if (viewMode === "list") {
     return (
-      <div className="group bg-white dark:bg-slate-800 rounded shadow hover:shadow dark:shadow-slate-700/30 transition-all duration-300 overflow-hidden">
+      <div
+        className="group bg-white dark:bg-slate-800 rounded shadow hover:shadow dark:shadow-slate-700/30 transition-all duration-300 overflow-hidden cursor-pointer"
+        onClick={onViewProject}
+      >
         <div className="flex flex-col sm:flex-row">
           <div className="relative sm:w-80 h-64 sm:h-48 overflow-hidden">
             <Image
@@ -269,6 +275,10 @@ function ProjectCard({
             <Button
               variant="outline"
               className="group/btn border-emerald-500 text-emerald-600 hover:bg-emerald-500 hover:text-white dark:border-emerald-400 dark:text-emerald-400"
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewProject();
+              }}
             >
               View Details
               <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
@@ -280,7 +290,10 @@ function ProjectCard({
   }
 
   return (
-    <div className="group bg-white dark:bg-slate-800 rounded shadow hover:shadow-xl dark:shadow-slate-700/30 transition-all duration-300 overflow-hidden hover:-translate-y-1">
+    <div
+      className="group bg-white dark:bg-slate-800 rounded shadow hover:shadow-xl dark:shadow-slate-700/30 transition-all duration-300 overflow-hidden hover:-translate-y-1 cursor-pointer"
+      onClick={onViewProject}
+    >
       <div className="relative h-64 overflow-hidden">
         <Image
           src={project.images?.[0] || "/placeholder.svg"}
@@ -311,6 +324,10 @@ function ProjectCard({
         <Button
           variant="ghost"
           className="w-full justify-center group/btn text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/30"
+          onClick={(e) => {
+            e.stopPropagation();
+            onViewProject();
+          }}
         >
           View Project Details
           <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />

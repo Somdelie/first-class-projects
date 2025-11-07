@@ -7,11 +7,14 @@ import { Menu, Phone } from "lucide-react";
 import { ModeToggle } from "./ui/ModeToggle";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function TopNav() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,19 +53,46 @@ export default function TopNav() {
   }, []);
 
   const navLinks = [
-    { name: "Home", href: "#home" },
-    { name: "Application Partners", href: "#application-partners" },
-    { name: "About", href: "#about" },
-    { name: "Projects", href: "#projects" },
-    { name: "Contact", href: "#contact" },
+    { name: "Home", href: "/", type: "link" },
+    { name: "About", href: "/about", type: "link" },
+    { name: "Services", href: "/services", type: "link" },
+    { name: "Projects", href: "/projects", type: "link" },
+    { name: "Contact", href: "/contact", type: "link" },
   ];
 
   const scrollToSection = (href: string) => {
-    const element = document.querySelector(href);
+    // If it's a page link (starts with '/'), navigate to that page
+    if (href.startsWith("/")) {
+      router.push(href);
+      setIsOpen(false);
+      return;
+    }
+
+    // If it's an anchor link (starts with '#'), scroll to that section
+    if (href.startsWith("#")) {
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+      setIsOpen(false);
+      return;
+    }
+
+    // Default case - treat as anchor if no prefix
+    const element = document.querySelector(`#${href}`);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
-      setIsOpen(false);
     }
+    setIsOpen(false);
+  };
+
+  const isLinkActive = (href: string) => {
+    // For page links, check if the current pathname matches
+    if (href.startsWith("/")) {
+      return pathname === href;
+    }
+    // For anchor links, use the activeSection logic
+    return activeSection === href.slice(1);
   };
 
   return (
@@ -94,13 +124,13 @@ export default function TopNav() {
                 key={link.name}
                 onClick={() => scrollToSection(link.href)}
                 className={`transition-colors font-medium relative ${
-                  activeSection === link.href.slice(1)
+                  isLinkActive(link.href)
                     ? "text-primary"
                     : "text-foreground hover:text-primary"
                 }`}
               >
                 {link.name}
-                {activeSection === link.href.slice(1) && (
+                {isLinkActive(link.href) && (
                   <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary" />
                 )}
               </button>
@@ -121,36 +151,54 @@ export default function TopNav() {
           <div className="md:hidden">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="hover:bg-primary/10"
+                >
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-                <div className="flex flex-col space-y-6 mt-8">
-                  <div className="text-xl font-bold text-primary mb-4">
-                    First Class Projects
+                <nav className="flex flex-col h-full">
+                  {/* Header */}
+                  <Image
+                    src="/FirstClass_Logo.png"
+                    alt="FirstClass_Logo"
+                    width={150}
+                    height={100}
+                    className="mb-8 mt-6"
+                  />
+
+                  {/* Navigation Links */}
+                  <div className="flex flex-col space-y-1 flex-1">
+                    {navLinks.map((link) => (
+                      <button
+                        key={link.name}
+                        onClick={() => scrollToSection(link.href)}
+                        className={`text-left px-4 py-3 rounded-lg text-lg font-medium transition-all ${
+                          isLinkActive(link.href)
+                            ? "text-primary bg-primary/10"
+                            : "text-foreground hover:text-primary hover:bg-primary/5"
+                        }`}
+                      >
+                        {link.name}
+                      </button>
+                    ))}
                   </div>
-                  {navLinks.map((link) => (
-                    <button
-                      key={link.name}
-                      onClick={() => scrollToSection(link.href)}
-                      className={`text-left text-lg font-medium transition-colors ${
-                        activeSection === link.href.slice(1)
-                          ? "text-primary"
-                          : "text-foreground hover:text-primary"
-                      }`}
+
+                  {/* Contact Button */}
+                  <div className="pt-6 mt-auto border-t">
+                    <Button
+                      onClick={() => scrollToSection("#contact")}
+                      className="gap-2 w-full"
+                      size="lg"
                     >
-                      {link.name}
-                    </button>
-                  ))}
-                  <Button
-                    onClick={() => scrollToSection("#contact")}
-                    className="gap-2 w-full"
-                  >
-                    <Phone className="h-4 w-4" />
-                    0861 125 277
-                  </Button>
-                </div>
+                      <Phone className="h-4 w-4" />
+                      0861 125 277
+                    </Button>
+                  </div>
+                </nav>
               </SheetContent>
             </Sheet>
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,8 +21,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { MultipleImageUpload } from "@/components/MultipleImageUpload"; // Changed from ImageUpload
-import { createProject } from "@/lib/db";
+import { MultipleImageUpload } from "@/components/MultipleImageUpload";
+import { createProjectActionFromObject } from "@/lib/actions";
 import { toast } from "sonner";
 import { Card, CardContent } from "../ui/card";
 
@@ -35,47 +35,52 @@ export const categories = [
 
 export function ProjectDialog() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     category: "Residential" as (typeof categories)[number],
-    images: [] as string[], // Changed from image to images
+    images: [] as string[],
     description: "",
   });
 
   const handleAddProject = async () => {
-    if (!formData.title) return;
-
-    try {
-      startTransition(async () => {
-        const response = await createProject({
-          title: formData.title,
-          description: formData.description,
-          images: formData.images, // Changed from image to images
-          category: formData.category,
-        });
-        if (response.success) {
-          toast.success("Project has been created successfully💐", {
-            style: {
-              backgroundColor: "#22c55e",
-              color: "#fff",
-            },
-          });
-          setIsOpen(false);
-        } else {
-          toast.error("Failed to create project");
-        }
-      });
-    } catch (error) {
-      console.error(error);
+    if (!formData.title || formData.images.length === 0) {
+      toast.error("Please fill in all required fields");
+      return;
     }
 
-    setFormData({
-      title: "",
-      category: "Residential",
-      images: [], // Changed from image to images
-      description: "",
-    });
+    setIsLoading(true);
+    try {
+      const result = await createProjectActionFromObject({
+        title: formData.title,
+        description: formData.description,
+        images: formData.images,
+        category: formData.category,
+      });
+
+      if (result.success) {
+        toast.success("Project has been created successfully💐", {
+          style: {
+            backgroundColor: "#22c55e",
+            color: "#fff",
+          },
+        });
+        setIsOpen(false);
+        setFormData({
+          title: "",
+          category: "Residential",
+          images: [],
+          description: "",
+        });
+      } else {
+        toast.error(result.error || "Failed to create project");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -96,91 +101,99 @@ export function ProjectDialog() {
               </DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-5 pl-2 max-h-[70vh] overflow-y-auto">
-              <div className="space-y-2">
-                <Label htmlFor="title" className="text-base font-medium">
-                  Project Title
-                </Label>
-                <Input
-                  id="title"
-                  placeholder="e.g., Modern Kitchen Renovation"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
+            <form onSubmit={(e) => e.preventDefault()}>
+              <div className="space-y-5 pl-2 max-h-[70vh] overflow-y-auto">
+                <div className="space-y-2">
+                  <Label htmlFor="title" className="text-base font-medium">
+                    Project Title
+                  </Label>
+                  <Input
+                    id="title"
+                    placeholder="e.g., Modern Kitchen Renovation"
+                    value={formData.title}
+                    onChange={(e) =>
+                      setFormData({ ...formData, title: e.target.value })
+                    }
+                    className="h-11"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="category" className="text-base font-medium">
+                    Category
+                  </Label>
+                  <Select
+                    value={formData.category}
+                    onValueChange={(value: string) =>
+                      setFormData({
+                        ...formData,
+                        category: value as typeof formData.category,
+                      })
+                    }
+                  >
+                    <SelectTrigger className="w-full h-11">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat} value={cat}>
+                          {cat}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <MultipleImageUpload
+                  values={formData.images}
+                  onChange={(urls) =>
+                    setFormData({ ...formData, images: urls })
                   }
-                  className="h-11"
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="category" className="text-base font-medium">
-                  Category
-                </Label>
-                <Select
-                  value={formData.category}
-                  onValueChange={(value: string) =>
-                    setFormData({
-                      ...formData,
-                      category: value as typeof formData.category,
-                    })
-                  }
-                >
-                  <SelectTrigger className="w-full h-11">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat} value={cat}>
-                        {cat}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="description"
+                    className="text-base font-medium"
+                  >
+                    Description
+                  </Label>
+                  <Textarea
+                    id="description"
+                    placeholder="Enter project description"
+                    value={formData.description}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
+                    rows={4}
+                    className="resize-none"
+                  />
+                </div>
 
-              <MultipleImageUpload
-                values={formData.images}
-                onChange={(urls) => setFormData({ ...formData, images: urls })}
-              />
-
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-base font-medium">
-                  Description
-                </Label>
-                <Textarea
-                  id="description"
-                  placeholder="Enter project description"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  rows={4}
-                  className="resize-none"
-                />
+                <div className="flex gap-3 justify-end pt-4 border-t dark:border-slate-700">
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsOpen(false)}
+                    className="px-6"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleAddProject}
+                    disabled={isLoading}
+                    className="bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-6 shadow-lg disabled:opacity-50"
+                  >
+                    {isLoading ? (
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="animate-spin" /> Creating...
+                      </span>
+                    ) : (
+                      "Add Project"
+                    )}
+                  </Button>
+                </div>
               </div>
-
-              <div className="flex gap-3 justify-end pt-4 border-t dark:border-slate-700">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsOpen(false)}
-                  className="px-6"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleAddProject}
-                  className="bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-6 shadow-lg"
-                >
-                  {isPending ? (
-                    <span className="flex items-center gap-2">
-                      <Loader2 className="animate-spin" /> Creating...
-                    </span>
-                  ) : (
-                    "Add Project"
-                  )}
-                </Button>
-              </div>
-            </div>
+            </form>
           </DialogContent>
         </Dialog>
       </CardContent>

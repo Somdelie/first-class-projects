@@ -45,7 +45,6 @@ export default function DiagnosticsPage() {
     try {
       const response = await fetch("/api/projects");
       const data = await response.json();
-      console.log("Projects API response:", data);
       alert(`Projects API Response: ${JSON.stringify(data, null, 2)}`);
     } catch (error) {
       console.error("Projects API error:", error);

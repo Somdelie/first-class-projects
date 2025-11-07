@@ -177,10 +177,10 @@ export function ProjectActions({ project }: { project: Project }) {
               >
                 {isPending ? (
                   <span className="flex items-center gap-2">
-                    <Loader2 className="animate-spin" /> Creating...
+                    <Loader2 className="animate-spin" /> Saving...
                   </span>
                 ) : (
-                  "Add Project"
+                  "Save Project"
                 )}
               </Button>
             </div>
