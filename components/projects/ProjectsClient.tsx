@@ -27,7 +27,7 @@ type Project = {
   id: string;
   title: string;
   category: string;
-  image: string;
+  images: string[]; // Changed from image to images array
   description: string;
   createdAt: Date;
   updatedAt: Date;
@@ -240,7 +240,7 @@ function ProjectCard({
         <div className="flex flex-col sm:flex-row">
           <div className="relative sm:w-80 h-64 sm:h-48 overflow-hidden">
             <Image
-              src={project.image || "/placeholder.svg"}
+              src={project.images?.[0] || "/placeholder.svg"}
               alt={project.title}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -283,7 +283,7 @@ function ProjectCard({
     <div className="group bg-white dark:bg-slate-800 rounded shadow hover:shadow-xl dark:shadow-slate-700/30 transition-all duration-300 overflow-hidden hover:-translate-y-1">
       <div className="relative h-64 overflow-hidden">
         <Image
-          src={project.image || "/placeholder.svg"}
+          src={project.images?.[0] || "/placeholder.svg"}
           alt={project.title}
           fill
           className="object-cover group-hover:scale-110 transition-transform duration-500"

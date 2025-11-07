@@ -18,7 +18,7 @@ interface Project {
   id: string;
   title: string;
   category: string;
-  image: string;
+  images: string[]; // Changed from image to images array
   description: string;
   createdAt: Date;
   updatedAt: Date;
@@ -169,15 +169,20 @@ export default async function AdminPage() {
                             </span>
                           </TableCell>
                           <TableCell className="py-5 px-6">
-                            {project.image ? (
+                            {project.images && project.images.length > 0 ? (
                               <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-sm group-hover:shadow-lg group-hover:scale-105 transition-all duration-200">
                                 <Image
-                                  src={project.image || "/placeholder.svg"}
+                                  src={project.images[0] || "/placeholder.svg"}
                                   alt={project.title}
                                   fill
                                   className="object-cover"
                                   sizes="80px"
                                 />
+                                {project.images.length > 1 && (
+                                  <div className="absolute top-1 right-1 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded">
+                                    +{project.images.length - 1}
+                                  </div>
+                                )}
                               </div>
                             ) : (
                               <div className="w-20 h-20 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-600 group-hover:border-slate-400 dark:group-hover:border-slate-500 transition-colors">

@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { ImageUpload } from "@/components/ImageUpload";
+import { MultipleImageUpload } from "@/components/MultipleImageUpload"; // Changed from ImageUpload
 import { createProject } from "@/lib/db";
 import { toast } from "sonner";
 import { Card, CardContent } from "../ui/card";
@@ -39,7 +39,7 @@ export function ProjectDialog() {
   const [formData, setFormData] = useState({
     title: "",
     category: "Residential" as (typeof categories)[number],
-    image: "",
+    images: [] as string[], // Changed from image to images
     description: "",
   });
 
@@ -51,7 +51,7 @@ export function ProjectDialog() {
         const response = await createProject({
           title: formData.title,
           description: formData.description,
-          image: formData.image,
+          images: formData.images, // Changed from image to images
           category: formData.category,
         });
         if (response.success) {
@@ -73,7 +73,7 @@ export function ProjectDialog() {
     setFormData({
       title: "",
       category: "Residential",
-      image: "",
+      images: [], // Changed from image to images
       description: "",
     });
   };
@@ -138,9 +138,9 @@ export function ProjectDialog() {
                 </Select>
               </div>
 
-              <ImageUpload
-                value={formData.image}
-                onChange={(url) => setFormData({ ...formData, image: url })}
+              <MultipleImageUpload
+                values={formData.images}
+                onChange={(urls) => setFormData({ ...formData, images: urls })}
               />
 
               <div className="space-y-2">

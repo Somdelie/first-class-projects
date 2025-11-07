@@ -9,7 +9,7 @@ interface Project {
   id: string
   title: string
   category: string
-  image: string
+  images: string[] // Changed from image to images array
   description: string
   createdAt: Date
   updatedAt: Date
@@ -24,7 +24,7 @@ type DbResult<T> =
 export async function createProject(data: {
   title: string
   description: string
-  image: string
+  images: string[] // Changed from image to images array
   category?: string
 }) {
 
@@ -45,7 +45,7 @@ export async function createProject(data: {
     const project = await prisma.project.create({
       data: {
         ...data,
-        image: data.image,
+        images: data.images, // Changed from image to images
         category: data.category ?? ""
       }
     })
@@ -91,7 +91,7 @@ export async function getAllProjects(): Promise<DbResult<Project[]>> {
 export async function updateProject(id: string, data: {
   title?: string
   description?: string
-  image?: string
+  images?: string[] // Changed from image to images array
   category?: string
 }) {
 
@@ -101,12 +101,12 @@ export async function updateProject(id: string, data: {
     const updateData: {
       title?: string
       description?: string
-      image?: string
+      images?: string[] // Changed from image to images array
       category?: string
     } = {}
     if (data.title !== undefined) updateData.title = data.title
     if (data.description !== undefined) updateData.description = data.description
-    if (data.image !== undefined) updateData.image = data.image
+    if (data.images !== undefined) updateData.images = data.images // Changed from image to images
     if (data.category !== undefined) updateData.category = data.category
 
     const project = await prisma.project.update({

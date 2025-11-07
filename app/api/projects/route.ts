@@ -34,13 +34,13 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { title, description, image, category } = body
-    console.log('Project data received:', { title, description, image, category })
+    const { title, description, images, category } = body // Changed from image to images
+    console.log('Project data received:', { title, description, images, category })
 
-    if (!title || !description || !image) {
+    if (!title || !description || !images || images.length === 0) {
       console.log('Missing required fields')
       return NextResponse.json(
-        { error: 'Title, description, and image are required' },
+        { error: 'Title, description, and images are required' }, // Updated error message
         { status: 400 }
       )
     }
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     const result = await createProject({
       title,
       description,
-      image,
+      images, // Changed from image to images
       category
     })
 

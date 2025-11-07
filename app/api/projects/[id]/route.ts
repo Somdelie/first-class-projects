@@ -15,12 +15,12 @@ export async function PUT(
 
     const { id } = await params
     const body = await req.json()
-    const { title, description, image, category } = body
+    const { title, description, images, category } = body // Changed from image to images
 
     const result = await updateProject(id, {
       title,
       description,
-      image,
+      images, // Changed from image to images
       category
     })
 

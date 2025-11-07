@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Label } from "../ui/label";
-import { ImageUpload } from "../ImageUpload";
+import { MultipleImageUpload } from "../MultipleImageUpload"; // Changed from ImageUpload
 import { Textarea } from "../ui/textarea";
 import { Input } from "../ui/input";
 import { categories } from "./project-dialog";
@@ -28,7 +28,7 @@ interface Project {
   id: string;
   title: string;
   category: string;
-  image: string;
+  images: string[]; // Changed from image to images array
   description: string;
   createdAt: Date;
   updatedAt: Date;
@@ -41,7 +41,7 @@ export function ProjectActions({ project }: { project: Project }) {
   const [formData, setFormData] = useState({
     title: project.title,
     category: project.category,
-    image: project.image,
+    images: project.images, // Changed from image to images
     description: project.description,
   });
 
@@ -142,9 +142,9 @@ export function ProjectActions({ project }: { project: Project }) {
               </Select>
             </div>
 
-            <ImageUpload
-              value={formData.image}
-              onChange={(url) => setFormData({ ...formData, image: url })}
+            <MultipleImageUpload
+              values={formData.images}
+              onChange={(urls) => setFormData({ ...formData, images: urls })}
             />
 
             <div className="space-y-2">

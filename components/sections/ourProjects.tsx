@@ -16,7 +16,7 @@ type Project = {
   id: string;
   title: string;
   category: string;
-  image: string;
+  images: string[]; // Changed from image to images array
   description: string;
 };
 
@@ -90,7 +90,7 @@ export default function OurProjects({ projects }: { projects: Project[] }) {
                         <Image
                           width={300}
                           height={200}
-                          src={project.image || "/placeholder.svg"}
+                          src={project.images?.[0] || "/placeholder.svg"}
                           alt={project.title}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
