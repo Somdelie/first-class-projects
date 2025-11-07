@@ -2,7 +2,7 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { revalidatePath } from 'next/cache'
 import { safeDbOperation, ensureDbConnection, safeDbDisconnect } from './db-utils'
-import { db } from './prisma'
+import { prisma } from './prisma'
 
 // Types
 interface Project {
@@ -42,7 +42,7 @@ export async function createProject(data: {
     }
     
     console.log('Creating project with data:', data)
-    const project = await db.project.create({
+    const project = await prisma.project.create({
       data: {
         ...data,
         image: data.image,
@@ -72,7 +72,7 @@ export async function getAllProjects(): Promise<DbResult<Project[]>> {
       }
       
       console.log('Fetching projects from database...')
-      const projects = await db.project.findMany({
+      const projects = await prisma.project.findMany({
         orderBy: { createdAt: 'desc' }
       })
       
@@ -109,7 +109,7 @@ export async function updateProject(id: string, data: {
     if (data.image !== undefined) updateData.image = data.image
     if (data.category !== undefined) updateData.category = data.category
 
-    const project = await db.project.update({
+    const project = await prisma.project.update({
       where: { id },
       data: updateData
     })
@@ -124,7 +124,7 @@ export async function updateProject(id: string, data: {
 
 export async function deleteProject(id: string) {
   try {
-    await db.project.delete({
+    await prisma.project.delete({
       where: { id }
     })
     revalidatePath('/admin')

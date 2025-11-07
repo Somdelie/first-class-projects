@@ -10,7 +10,7 @@ function createPrismaClient() {
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
     datasources: {
       db: {
-        url: process.env.DATABASE_URL || 'mongodb://localhost:27017/fallback',
+        url: process.env.DATABASE_URL || 'postgresql://localhost:5432/fallback',
       },
     },
     errorFormat: 'minimal',
